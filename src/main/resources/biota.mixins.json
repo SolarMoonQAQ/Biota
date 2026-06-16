@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8.5",
+  "package": "cn.solarmoon.biota.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "cn.solarmoon.biota.mixin.MixinConfig",
+  "mixins": [
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

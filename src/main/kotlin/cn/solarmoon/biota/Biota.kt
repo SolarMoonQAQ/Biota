@@ -1,6 +1,6 @@
 package cn.solarmoon.biota
 
-import cn.solarmoon.biota.fp.serialization.BehaviorTreeConfigManager
+import cn.solarmoon.biota.config.BehaviorTreeConfigManager
 import cn.solarmoon.biota.registry.client.BiotaEntityRendererRegister
 import cn.solarmoon.biota.registry.common.BiotaCommandRegister
 import cn.solarmoon.biota.registry.common.BiotaEntities
@@ -9,6 +9,7 @@ import net.neoforged.fml.ModContainer
 import net.neoforged.fml.common.Mod
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent
 import net.neoforged.fml.loading.FMLEnvironment
+import org.slf4j.LoggerFactory
 
 @Mod(Biota.MOD_ID)
 class Biota(
@@ -18,6 +19,7 @@ class Biota(
 
     companion object {
         const val MOD_ID = "biota"
+        val LOGGER = LoggerFactory.getLogger(MOD_ID)
     }
 
     init {

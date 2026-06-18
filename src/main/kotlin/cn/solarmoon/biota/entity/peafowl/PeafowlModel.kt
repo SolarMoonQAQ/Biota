@@ -1,14 +1,14 @@
 package cn.solarmoon.biota.entity.peafowl
 
 import cn.solarmoon.biota.Biota
+import cn.solarmoon.biota.registry.common.BiotaEntities
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
 import software.bernie.geckolib.animation.AnimationState
 import software.bernie.geckolib.constant.DataTickets
 import software.bernie.geckolib.model.DefaultedEntityGeoModel
 
-class PeafowlModel:
-    DefaultedEntityGeoModel<Peafowl>(ResourceLocation.fromNamespaceAndPath(Biota.MOD_ID, "peafowl"), "Head") {
+class PeafowlModel: DefaultedEntityGeoModel<Peafowl>(BiotaEntities.PEAFOWL.id, "Head") {
     companion object {
         val TEXTURE_LOCATION = ResourceLocation.fromNamespaceAndPath(Biota.MOD_ID, "textures/entity/green_peafowl.png")
     }

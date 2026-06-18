@@ -1,4 +1,4 @@
-package cn.solarmoon.biota.entity.ai
+package cn.solarmoon.biota.entity.ai.navigation
 
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.Mob

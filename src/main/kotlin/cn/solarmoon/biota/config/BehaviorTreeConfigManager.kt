@@ -1,31 +1,32 @@
-package cn.solarmoon.biota.fp.serialization
+package cn.solarmoon.biota.config
 
 import cn.solarmoon.kbehaviortree.node.TreeNode
 import cn.solarmoon.biota.Biota
 import cn.solarmoon.biota.fp.entity.peafowlBehaviorTree
+import cn.solarmoon.biota.fp.entity.waterBuffaloBehaviorTree
+import cn.solarmoon.biota.fp.serialization.YAML
+import cn.solarmoon.biota.registry.common.BiotaEntities
 import net.neoforged.fml.loading.FMLPaths
 import java.io.File
 
 object BehaviorTreeConfigManager {
-    // 💡 1. 准确定位到：游戏根目录/config/behavior_trees 文件夹
-    private val configFolder: File = FMLPaths.CONFIGDIR.get().resolve(Biota.MOD_ID).resolve("behavior-trees").toFile()
 
-    // 💡 2. 运行时行为树注册表：通过文件名（不含后缀）映射到内存中的行为树对象
+    private val configFolder: File = FMLPaths.CONFIGDIR.get().resolve(Biota.MOD_ID).resolve("behavior-trees").toFile()
     private val treeRegistry = mutableMapOf<String, TreeNode>()
 
     /**
-     * 外部调用的初始化入口
+     * 1. 静态映射：把你预期的【树名称】和【代码里的默认树对象】绑定在一起
      */
+    private val defaultTrees: Map<String, TreeNode> by lazy {
+        mapOf(
+            BiotaEntities.PEAFOWL.id.path to peafowlBehaviorTree,
+            BiotaEntities.WATER_BUFFALO.id.path to waterBuffaloBehaviorTree
+        )
+    }
+
     fun init() {
         if (!configFolder.exists()) {
             configFolder.mkdirs()
-        }
-
-        // 检查该目录下是否有任何 yaml 配置文件
-        val yamlFiles = configFolder.listFiles { _, name -> name.endsWith(".yaml") || name.endsWith(".yml") }
-        if (yamlFiles.isNullOrEmpty()) {
-            println("[BehaviorTree] 检测到行为树配置为空，开始生成默认模板...")
-            generateDefaultConfigs()
         }
 
         // 执行全局载入
@@ -33,14 +34,18 @@ object BehaviorTreeConfigManager {
     }
 
     /**
-     * 3. 自动生成默认配置文件（当文件夹为空时触发，作为范本供玩家/你参考修改）
+     * 3. 核心修正：谁丢了就单独补谁，实现“非破坏性”的默认生成
      */
-    private fun generateDefaultConfigs() {
-        // 利用你写好的 DSL 快速拼装出一颗默认的孔雀行为树对象
-        val defaultPeafowlTree = peafowlBehaviorTree
+    private fun checkAndGenerateDefaultConfigs() {
+        defaultTrees.forEach { (treeName, defaultTree) ->
+            val targetFile = File(configFolder, "$treeName.yaml")
 
-        // 保存为 "peafowl.yaml"
-        saveTree("peafowl", defaultPeafowlTree)
+            // 如果这个特定的配置文件不存在，则为它生成代码里的默认模板
+            if (!targetFile.exists()) {
+                println("[BehaviorTree] 未检测到 [$treeName] 的配置文件，正在恢复默认模板...")
+                saveTree(treeName, defaultTree)
+            }
+        }
     }
 
     /**
@@ -49,10 +54,9 @@ object BehaviorTreeConfigManager {
     fun saveTree(name: String, tree: TreeNode) {
         val file = File(configFolder, "$name.yaml")
         try {
-            // 使用前面定制过的 YAML 实例直接导出
             val yamlText = YAML.encodeToString(TreeNode.serializer(), tree)
             file.writeText(yamlText)
-            println("[BehaviorTree] 已生成默认配置文件: ${file.absolutePath}")
+            println("[BehaviorTree] 已生成/更新配置文件: ${file.absolutePath}")
         } catch (e: Exception) {
             System.err.println("[BehaviorTree] 序列化/保存 $name.yaml 失败！")
             e.printStackTrace()
@@ -60,32 +64,27 @@ object BehaviorTreeConfigManager {
     }
 
     /**
-     * 4. 核心：扫描并读取文件夹下所有的 YAML 配置文件（支持游戏内热重载）
+     * 扫描并读取文件夹下所有的 YAML 配置文件
      */
     fun reloadAll() {
+        checkAndGenerateDefaultConfigs()
         treeRegistry.clear()
         val files = configFolder.listFiles { _, name -> name.endsWith(".yaml") || name.endsWith(".yml") } ?: return
 
         for (file in files) {
-            val treeName = file.nameWithoutExtension // 获取不带后缀的文件名，作为 Key
+            val treeName = file.nameWithoutExtension
             try {
                 val content = file.readText()
-
-                // 💡 解码：动态识别你在 YAML 里填写的 type: panic_fly
                 val tree = YAML.decodeFromString(TreeNode.serializer(), content)
-
                 treeRegistry[treeName] = tree
                 println("[BehaviorTree] 成功载入行为树配置: $treeName")
             } catch (e: Exception) {
                 System.err.println("[BehaviorTree] 配置文件格式有误，载入失败: ${file.name}")
-                e.printStackTrace() // 打印报错日志，方便在控制台排查是哪个节点的参数填错了
+                e.printStackTrace()
             }
         }
     }
 
-    /**
-     * 5. 提供给 Entity AI 调用的获取接口
-     */
     fun getTree(name: String): TreeNode? {
         return treeRegistry[name]
     }

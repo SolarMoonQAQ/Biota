@@ -5,6 +5,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.tags.ItemTags
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.AgeableMob
 import net.minecraft.world.entity.EntityType
@@ -16,6 +17,8 @@ import net.minecraft.world.entity.animal.Animal
 import net.minecraft.world.entity.animal.FlyingAnimal
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
+import net.neoforged.neoforge.common.NeoForge
+import net.neoforged.neoforge.common.Tags
 import software.bernie.geckolib.animatable.GeoEntity
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache
 import software.bernie.geckolib.animation.AnimatableManager
@@ -142,7 +145,7 @@ open class Peafowl(entityType: EntityType<out Peafowl>, level: Level)
     }
 
     override fun isFood(stack: ItemStack): Boolean {
-        return false
+        return stack.`is`(Tags.Items.SEEDS)
     }
 
     override fun getBreedOffspring(

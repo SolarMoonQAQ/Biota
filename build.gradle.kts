@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 val minecraft_version: String by project
 val minecraft_version_range: String by project
 val neo_version: String by project
@@ -24,6 +26,7 @@ plugins {
     kotlin("jvm") version "2.2.20"
     kotlin("plugin.serialization") version "2.2.20"
     id("net.neoforged.moddev") version "2.0.141"
+    id("com.gradleup.shadow") version "9.4.2"
 }
 
 version = mod_version
@@ -69,13 +72,13 @@ neoForge {
     runs {
         create("client") {
             client()
-            gameDirectory = project.file("run-client")
+            gameDirectory = file("run-client")
             systemProperty("neoforge.enabledGameTestNamespaces", mod_id)
         }
 
         create("server") {
             server()
-            gameDirectory = project.file("run-server")
+            gameDirectory = file("run-server")
             programArgument("--nogui")
             systemProperty("neoforge.enabledGameTestNamespaces", mod_id)
         }
@@ -139,7 +142,6 @@ tasks.withType<ProcessResources>().configureEach {
     }
 }
 
-
 val core by configurations.creating
 val externalLib by configurations.creating
 
@@ -154,9 +156,6 @@ configurations {
         extendsFrom(core)
         extendsFrom(externalLib)
     }
-    jarJar.get().apply {
-        extendsFrom(externalLib)
-    }
     implementation.get().apply {
         extendsFrom(core)
         extendsFrom(externalLib)
@@ -166,6 +165,44 @@ configurations {
 tasks.withType<Jar>().configureEach {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
+
+// ==========================================
+// ShadowJar 打包配置
+// ==========================================
+tasks.named<Jar>("jar") {
+    archiveClassifier.set("slim") // 将原本不带外部依赖的 jar 重命名为 slim
+}
+
+tasks.named<ShadowJar>("shadowJar") {
+    archiveClassifier.set("")
+    configurations = listOf(externalLib)
+
+    exclude("META-INF/INDEX.LIST", "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA", "module-info.class")
+    mergeServiceFiles()
+
+    val shadowPrefix = "cn.solarmoon.biota.shadow"
+    val libsToRelocate = listOf(
+        "com.charleskorn.kaml",
+        "ru.nsk.kstatemachine",
+        "cn.solarmoon.kbehaviortree",
+        "okio",
+        "it.krzeminski.snakeyaml",
+        "net.thauvin.erik"
+    )
+    libsToRelocate.forEach { pkg ->
+        relocate(pkg, "$shadowPrefix.$pkg")
+    }
+
+    dependencies {
+        exclude(dependency(".*kotlinx.*:.*:.*"))
+    }
+}
+
+// Gradle build 的时候自动执行 shadowJar
+tasks.named("build") {
+    dependsOn("shadowJar")
+}
+// ==========================================
 
 dependencies {
     core("thedarkcolour:kotlinforforge-neoforge:${kff_version}")
@@ -267,4 +304,3 @@ tasks.javadoc {
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
 }
-

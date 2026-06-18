@@ -3,40 +3,29 @@ package cn.solarmoon.biota.entity.peafowl
 import cn.solarmoon.kbehaviortree.Status
 import cn.solarmoon.kbehaviortree.node.Task
 import cn.solarmoon.kbehaviortree.node.execute
-import cn.solarmoon.biota.entity.ai.LandGoal
-import cn.solarmoon.biota.entity.ai.PanicFlyGoal
-import cn.solarmoon.biota.entity.ai.debug
+import cn.solarmoon.biota.entity.ai.goal.LandGoal
+import cn.solarmoon.biota.entity.ai.goal.PanicFlyGoal
 import cn.solarmoon.biota.entity.ai.goal.FlyToSpotWanderGoal
-import cn.solarmoon.biota.entity.ai.toTask
+import cn.solarmoon.biota.entity.ai.mobTaskExecutor
 import cn.solarmoon.biota.fp.entity.ActivateFlyWhileFallingTask
-import cn.solarmoon.biota.fp.entity.FloatTask
 import cn.solarmoon.biota.fp.entity.FlyToSpotWanderTask
-import cn.solarmoon.biota.fp.entity.GroundWanderTask
-import cn.solarmoon.biota.fp.entity.IsFallingTask
-import cn.solarmoon.biota.fp.entity.IsFlyingTask
 import cn.solarmoon.biota.fp.entity.LandTask
-import cn.solarmoon.biota.fp.entity.LookAtPlayerTask
-import cn.solarmoon.biota.fp.entity.OnGroundTask
 import cn.solarmoon.biota.fp.entity.PanicFlyTask
 import cn.solarmoon.biota.fp.entity.PeafowlTask
-import cn.solarmoon.biota.fp.entity.RandomLookAroundTask
-import cn.solarmoon.biota.fp.entity.SlowDescentTask
-import cn.solarmoon.biota.fp.entity.runGoalTask
-import cn.solarmoon.biota.fp.serialization.BehaviorTreeConfigManager
-import com.tpcly.behaviourtree.node.*
-import com.tpcly.behaviourtree.node.composite.ParallelPolicy
+import cn.solarmoon.biota.fp.orElse
+import cn.solarmoon.biota.entity.ai.runGoalTask
+import cn.solarmoon.biota.config.BehaviorTreeConfigManager
+import cn.solarmoon.biota.fp.orThrow
 import net.minecraft.commands.arguments.EntityAnchorArgument
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.world.entity.ai.goal.*
-import net.minecraft.world.entity.ai.util.HoverRandomPos
-import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.levelgen.Heightmap
-import net.minecraft.world.phys.Vec3
 
 class PeafowlBehaviorTreeGoal(val peafowl: Peafowl): Goal() {
 
     val goalMemory = mutableMapOf<Task, Goal>()
 
-    val taskExecutor = { task: Task ->
+    val peafowlTaskExecutor = { task: Task ->
         when (task) {
             is PanicFlyTask -> runGoalTask(task, goalMemory) {
                 object : PanicFlyGoal(peafowl, task.speed) {
@@ -76,25 +65,6 @@ class PeafowlBehaviorTreeGoal(val peafowl: Peafowl): Goal() {
                     }
                 }
             }
-            is SlowDescentTask -> {
-                peafowl.deltaMovement = peafowl.deltaMovement.multiply(1.0, 0.9, 1.0)
-                Status.SUCCESS
-            }
-            is GroundWanderTask -> runGoalTask(task, goalMemory) {
-                RandomStrollGoal(peafowl, task.speed)
-            }
-            is LookAtPlayerTask -> runGoalTask(task, goalMemory) {
-                LookAtPlayerGoal(peafowl, Player::class.java, task.distance, task.probability)
-            }
-            is RandomLookAroundTask -> runGoalTask(task, goalMemory) {
-                RandomLookAroundGoal(peafowl)
-            }
-            is FloatTask -> runGoalTask(task, goalMemory) {
-                FloatGoal(peafowl)
-            }
-            is IsFlyingTask -> Status.condition(peafowl.isFlying)
-            is OnGroundTask -> Status.condition(peafowl.onGround())
-            is IsFallingTask -> Status.condition(!peafowl.onGround() && !peafowl.isFlying)
             is ActivateFlyWhileFallingTask -> {
                 val groundY = peafowl.level().getHeight(Heightmap.Types.MOTION_BLOCKING, peafowl.onPos.x, peafowl.onPos.z)
                 val distance = peafowl.y - groundY
@@ -169,17 +139,18 @@ class PeafowlBehaviorTreeGoal(val peafowl: Peafowl): Goal() {
                 }
             }
 
-            else -> Status.FAILURE
+            else -> null
         }
     }
+
+    val taskExecutor = (peafowlTaskExecutor orElse mobTaskExecutor(peafowl, goalMemory)).orThrow()
 
     override fun canUse(): Boolean {
         return true
     }
 
     override fun tick() {
-        //behaviorTree.execute()
-        BehaviorTreeConfigManager.getTree("peafowl")!!.execute(taskExecutor)
+        BehaviorTreeConfigManager.getTree(BuiltInRegistries.ENTITY_TYPE.getKey(peafowl.type).path)!!.execute(taskExecutor)
     }
 
     override fun requiresUpdateEveryTick(): Boolean {

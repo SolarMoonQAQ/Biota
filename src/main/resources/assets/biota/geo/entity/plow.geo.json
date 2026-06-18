@@ -1,0 +1,148 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.unknown",
+				"texture_width": 128,
+				"texture_height": 128,
+				"visible_bounds_width": 8,
+				"visible_bounds_height": 3.5,
+				"visible_bounds_offset": [0, 1.25, 0]
+			},
+			"bones": [
+				{
+					"name": "Plow",
+					"pivot": [0, 0, 0]
+				},
+				{
+					"name": "Front",
+					"parent": "Plow",
+					"pivot": [0, 14.75, 8.25]
+				},
+				{
+					"name": "BuffaloWood",
+					"parent": "Front",
+					"pivot": [0, 14.75, 8.25],
+					"cubes": [
+						{"origin": [-10, 23, -10], "size": [20, 3, 3], "uv": [0, 15]},
+						{"origin": [-8.5, 4, 24], "size": [17, 2, 2], "uv": [46, 15]},
+						{"origin": [8, 4.5, 23], "size": [0, 38, 2], "pivot": [8, 5.5, 24], "rotation": [60, 0, 0], "uv": [0, 41]},
+						{"origin": [-8, 4.5, 23], "size": [0, 38, 2], "pivot": [-8, 5.5, 24], "rotation": [60, 0, 0], "uv": [0, 41], "mirror": true}
+					]
+				},
+				{
+					"name": "Back",
+					"parent": "Plow",
+					"pivot": [0, 4, 25]
+				},
+				{
+					"name": "BackWood",
+					"parent": "Back",
+					"pivot": [0, 4, 25],
+					"cubes": [
+						{"origin": [-1.5, 2, 22], "size": [3, 2, 10], "inflate": 0.01, "uv": [46, 19]},
+						{"origin": [-1.5, 2.70711, 30.29289], "size": [3, 16, 2], "pivot": [0, 2.70711, 31.29289], "rotation": [-45, 0, 0], "uv": [72, 19]},
+						{"origin": [-1.5, 16.70711, 32.29289], "size": [3, 2, 10], "pivot": [0, 2.70711, 31.29289], "rotation": [-45, 0, 0], "uv": [0, 21]},
+						{"origin": [-1.5, 2, 41], "size": [3, 14, 2], "inflate": 0.01, "uv": [54, 31]},
+						{"origin": [-1.5, 0.01, 39], "size": [3, 2, 10], "uv": [72, 0]},
+						{"origin": [-1.5, 2.01, 47], "size": [3, 15, 2], "inflate": 0.01, "pivot": [0, 2.01, 47], "rotation": [-22.5, 0, 0], "uv": [44, 31]}
+					]
+				},
+				{
+					"name": "Plowshare",
+					"parent": "Back",
+					"pivot": [0, 1, 42],
+					"cubes": [
+						{"origin": [0.94696, -0.70831, 35.9903], "size": [2, 6, 7], "pivot": [1.94696, 2.29169, 39.9903], "rotation": [47.07389, 47.42801, -34.64777], "uv": [26, 21]},
+						{"origin": [-2.94696, -0.70831, 35.9903], "size": [2, 6, 7], "pivot": [-1.94696, 2.29169, 39.9903], "rotation": [47.07389, -47.42801, 34.64777], "uv": [8, 33]},
+						{"origin": [-1, 1, 32], "size": [2, 0, 7], "pivot": [0, 1, 37], "rotation": [12.5, 0, 0], "uv": [0, 33]},
+						{"origin": [1, 0.67534, 32.03556], "size": [2, 0, 7], "pivot": [1, 0.67534, 35.53556], "rotation": [9.97528, -7.57131, 36.83829], "uv": [18, 34]},
+						{"origin": [-3, 0.67534, 32.03556], "size": [2, 0, 7], "pivot": [-1, 0.67534, 35.53556], "rotation": [9.97528, 7.57131, -36.83829], "uv": [82, 19]}
+					]
+				},
+				{
+					"name": "Update",
+					"parent": "Back",
+					"pivot": [16, 1, 42]
+				},
+				{
+					"name": "LeftRightUpdate",
+					"parent": "Update",
+					"pivot": [16, 1, 42]
+				},
+				{
+					"name": "LeftPlowshare",
+					"parent": "LeftRightUpdate",
+					"pivot": [16, 1, 42],
+					"cubes": [
+						{"origin": [16.94696, -0.70831, 35.9903], "size": [2, 6, 7], "pivot": [17.94696, 2.29169, 39.9903], "rotation": [47.07389, 47.42801, -34.64777], "uv": [8, 46]},
+						{"origin": [13.05304, -0.70831, 35.9903], "size": [2, 6, 7], "pivot": [14.05304, 2.29169, 39.9903], "rotation": [47.07389, -47.42801, 34.64777], "uv": [8, 59]},
+						{"origin": [15, 1, 32], "size": [2, 0, 7], "pivot": [16, 1, 37], "rotation": [12.5, 0, 0], "uv": [82, 26]},
+						{"origin": [17, 0.67534, 32.03556], "size": [2, 0, 7], "pivot": [17, 0.67534, 35.53556], "rotation": [9.97528, -7.57131, 36.83829], "uv": [82, 33]},
+						{"origin": [13, 0.67534, 32.03556], "size": [2, 0, 7], "pivot": [15, 0.67534, 35.53556], "rotation": [9.97528, 7.57131, -36.83829], "uv": [64, 37]},
+						{"origin": [12, 0, 41], "size": [8, 4, 2], "uv": [8, 77]},
+						{"origin": [15, 0, 43], "size": [2, 2, 2], "uv": [0, 38]},
+						{"origin": [12, -1, 39], "size": [8, 1, 4], "uv": [8, 72]}
+					]
+				},
+				{
+					"name": "RightPlowshare",
+					"parent": "LeftRightUpdate",
+					"pivot": [-16, 1, 42],
+					"cubes": [
+						{"origin": [-18.94696, -0.70831, 35.9903], "size": [2, 6, 7], "pivot": [-17.94696, 2.29169, 39.9903], "rotation": [47.07389, -47.42801, 34.64777], "uv": [8, 46], "mirror": true},
+						{"origin": [-15.05304, -0.70831, 35.9903], "size": [2, 6, 7], "pivot": [-14.05304, 2.29169, 39.9903], "rotation": [47.07389, 47.42801, -34.64777], "uv": [8, 59]},
+						{"origin": [-17, 1, 32], "size": [2, 0, 7], "pivot": [-16, 1, 37], "rotation": [12.5, 0, 0], "uv": [82, 26], "mirror": true},
+						{"origin": [-19, 0.67534, 32.03556], "size": [2, 0, 7], "pivot": [-17, 0.67534, 35.53556], "rotation": [9.97528, 7.57131, -36.83829], "uv": [82, 33], "mirror": true},
+						{"origin": [-15, 0.67534, 32.03556], "size": [2, 0, 7], "pivot": [-15, 0.67534, 35.53556], "rotation": [9.97528, -7.57131, 36.83829], "uv": [64, 37], "mirror": true},
+						{"origin": [-20, 0, 41], "size": [8, 4, 2], "uv": [8, 77], "mirror": true},
+						{"origin": [-17, 0, 43], "size": [2, 2, 2], "uv": [0, 38], "mirror": true},
+						{"origin": [-20, -1, 39], "size": [8, 1, 4], "uv": [8, 72], "mirror": true}
+					]
+				},
+				{
+					"name": "RollWood",
+					"parent": "LeftRightUpdate",
+					"pivot": [0, 13, 43],
+					"cubes": [
+						{"origin": [-15, 7, 41], "size": [30, 2, 2], "uv": [0, 11]},
+						{"origin": [15, 4, 41], "size": [2, 7, 2], "inflate": 0.01, "uv": [36, 34]},
+						{"origin": [-17, 4, 41], "size": [2, 7, 2], "inflate": 0.01, "uv": [36, 34], "mirror": true}
+					]
+				},
+				{
+					"name": "SackUpated",
+					"parent": "Update",
+					"pivot": [16, 10, 47]
+				},
+				{
+					"name": "MainPlowSack",
+					"parent": "SackUpated",
+					"pivot": [0, 5, 45.5],
+					"cubes": [
+						{"origin": [-3, 2, 43], "size": [6, 6, 5], "uv": [22, 0]}
+					]
+				},
+				{
+					"name": "LeftPlowSack",
+					"parent": "SackUpated",
+					"pivot": [16, 5, 45.5],
+					"cubes": [
+						{"origin": [13, 2, 43], "size": [6, 6, 5], "uv": [0, 0]},
+						{"origin": [13, 2, 43], "size": [6, 6, 5], "inflate": 0.2, "uv": [44, 0]}
+					]
+				},
+				{
+					"name": "RightPlowSack",
+					"parent": "SackUpated",
+					"pivot": [-16, 5, 45.5],
+					"cubes": [
+						{"origin": [-19, 2, 43], "size": [6, 6, 5], "uv": [0, 0], "mirror": true},
+						{"origin": [-19, 2, 43], "size": [6, 6, 5], "inflate": 0.2, "uv": [44, 0], "mirror": true}
+					]
+				}
+			]
+		}
+	]
+}

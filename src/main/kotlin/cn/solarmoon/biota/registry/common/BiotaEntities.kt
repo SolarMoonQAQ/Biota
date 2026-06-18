@@ -2,6 +2,7 @@ package cn.solarmoon.biota.registry.common
 
 import cn.solarmoon.biota.Biota
 import cn.solarmoon.biota.entity.peafowl.Peafowl
+import cn.solarmoon.biota.entity.water_buffalo.WaterBuffalo
 import net.minecraft.core.registries.Registries
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.MobCategory
@@ -25,11 +26,14 @@ object BiotaEntities {
             .build("")
     })
 
+    val WATER_BUFFALO = ENTITY_TYPES.register("water_buffalo", Supplier {
+        EntityType.Builder.of(::WaterBuffalo, MobCategory.CREATURE)
+            .build("")
+    })
+
     private fun onEntityAttributes(event: EntityAttributeCreationEvent) {
-        event.put(
-            PEAFOWL.get(),
-            Peafowl.createAttributes().build()
-        )
+        event.put(PEAFOWL.get(), Peafowl.createAttributes().build())
+        event.put(WATER_BUFFALO.get(), WaterBuffalo.createAttributes().build())
     }
 
 }

@@ -1,7 +1,7 @@
 package cn.solarmoon.biota.registry.common
 
 import cn.solarmoon.biota.Biota
-import cn.solarmoon.biota.fp.serialization.BehaviorTreeConfigManager
+import cn.solarmoon.biota.config.BehaviorTreeConfigManager
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.Component
 import net.neoforged.bus.api.SubscribeEvent

@@ -43,6 +43,7 @@ val serializeModule = SerializersModule {
         registerAuto(HurtByTargetTask::class)
         registerAuto(MeleeAttackTask::class)
         registerAuto(FleeFromKillerTask::class)
+        registerAuto(FollowParentTask::class)
 
         registerAuto(PeafowlTask.IsDisplaying::class)
         registerAuto(PeafowlTask.DisplayTask::class)

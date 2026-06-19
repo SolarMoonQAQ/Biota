@@ -36,8 +36,4 @@ open class HerdPanicGoal(mob: PathfinderMob, speed: Double) : PanicGoal(mob, spe
         // 启动时，打上当前世界的时间戳
         mob.persistentData.putLong("panic_start_time", mob.level().gameTime)
     }
-
-    override fun canContinueToUse(): Boolean {
-        return mob.navigation.isInProgress
-    }
 }

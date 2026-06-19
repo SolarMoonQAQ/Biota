@@ -8,6 +8,7 @@ import cn.solarmoon.biota.fp.entity.*
 import cn.solarmoon.kbehaviortree.Status
 import cn.solarmoon.kbehaviortree.node.Task
 import net.minecraft.world.entity.PathfinderMob
+import net.minecraft.world.entity.TamableAnimal
 import net.minecraft.world.entity.ai.goal.*
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal
 import net.minecraft.world.entity.animal.Animal
@@ -56,6 +57,17 @@ fun mobTaskExecutor(entity: PathfinderMob, goalMemory: MutableMap<Task, Goal>) =
                 init {
                     if (task.alertOthers) setAlertOthers()
                 }
+
+                override fun canUse(): Boolean {
+                    val attacker = mob.lastHurtByMob
+
+                    // 如果实体是可驯服动物，攻击者不为空，且攻击者正是它的主人，则不触发反击
+                    if (mob is TamableAnimal && attacker != null && (mob as TamableAnimal).isOwnedBy(attacker)) {
+                        return false
+                    }
+
+                    return super.canUse()
+                }
             }
         }
         is MeleeAttackTask -> runGoalTask(task, goalMemory) {
@@ -64,6 +76,11 @@ fun mobTaskExecutor(entity: PathfinderMob, goalMemory: MutableMap<Task, Goal>) =
         is FleeFromKillerTask -> runGoalTask(task, goalMemory) {
             FleeFromKillerGoal(entity, task.speedModifier, task.fleeDistance)
         }
+        is FollowParentTask -> if (entity is Animal) {
+            runGoalTask(task, goalMemory) {
+                FollowParentGoal(entity, task.speed)
+            }
+        } else Status.FAILURE
         is IsFlyingTask -> Status.condition(entity is FlyingAnimal && entity.isFlying)
         is OnGroundTask -> Status.condition(entity.onGround())
         is IsFallingTask -> Status.condition(!entity.onGround() && entity is FlyingAnimal && !entity.isFlying)

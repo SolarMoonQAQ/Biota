@@ -61,3 +61,5 @@ data class HurtByTargetTask(val alertOthers: Boolean = false) : Task
 data class MeleeAttackTask(val speed: Double = 1.5, val followTargetEventIfNotSeen: Boolean = false) : Task
 @Serializable
 data class FleeFromKillerTask(val speedModifier: Double = 1.5, val fleeDistance: Double = 24.0, val fleeDurationTicks: Long = 200L) : Task
+@Serializable
+data class FollowParentTask(val speed: Double = 1.0) : Task

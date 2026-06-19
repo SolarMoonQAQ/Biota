@@ -75,6 +75,7 @@ class WaterBuffaloBehaviorTreeGoal(val mob: WaterBuffalo) : Goal() {
     }
 
     override fun tick() {
+        if (mob.isVehicle) return
         BehaviorTreeConfigManager.getTree(BuiltInRegistries.ENTITY_TYPE.getKey(mob.type).path)!!.execute(taskExecutor)
     }
 

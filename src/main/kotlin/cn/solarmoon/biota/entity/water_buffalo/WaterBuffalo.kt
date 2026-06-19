@@ -1,6 +1,5 @@
 package cn.solarmoon.biota.entity.water_buffalo
 
-import cn.solarmoon.biota.Biota
 import cn.solarmoon.biota.entity.ai.goal.Herd
 import cn.solarmoon.biota.entity.ai.goal.HerdRole
 import cn.solarmoon.biota.entity.ai.navigation.NaturalNavigateGround
@@ -17,11 +16,13 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import net.minecraft.tags.ItemTags
+import net.minecraft.util.Mth
 import net.minecraft.world.DifficultyInstance
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.*
 import net.minecraft.world.entity.ai.attributes.Attributes
+import net.minecraft.world.entity.ai.control.LookControl
 import net.minecraft.world.entity.ai.navigation.PathNavigation
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
@@ -40,6 +41,7 @@ import software.bernie.geckolib.animation.AnimationController
 import software.bernie.geckolib.animation.RawAnimation
 import software.bernie.geckolib.util.GeckoLibUtil
 import kotlin.math.cos
+import kotlin.math.sign
 import kotlin.math.sin
 
 open class WaterBuffalo(entityType: EntityType<out WaterBuffalo>, level: Level) : TamableAnimal(entityType, level), VariantHolder<WaterBuffaloVariant>, GeoEntity, Herd {
@@ -48,8 +50,8 @@ open class WaterBuffalo(entityType: EntityType<out WaterBuffalo>, level: Level) 
         val DATA_VARIANT = SynchedEntityData.defineId(WaterBuffalo::class.java, EntityDataSerializers.INT)
         val DATA_PLOW = SynchedEntityData.defineId(WaterBuffalo::class.java, EntityDataSerializers.ITEM_STACK)
 
-        val WILD_DIMENSIONS = EntityDimensions(1.5f, 2.4f, 1.7f, EntityAttachments.createDefault(1.5f, 2.6f), false)
-        val TAMED_DIMENSIONS = EntityDimensions(1.15f, 1.8f, 1.3f, EntityAttachments.createDefault(1.15f, 1.8f), false)
+        val WILD_DIMENSIONS = EntityDimensions(1.5f, 2.2f, 1.7f, EntityAttachments.createDefault(1.5f, 2.2f), false)
+        val TAMED_DIMENSIONS = EntityDimensions(1.15f, 1.6f, 1.3f, EntityAttachments.createDefault(1.15f, 1.6f), false)
 
         val WALK_ANIM = RawAnimation.begin().thenLoop("walk")
         val IDLE_ANIM = RawAnimation.begin().thenLoop("idle")
@@ -127,15 +129,65 @@ open class WaterBuffalo(entityType: EntityType<out WaterBuffalo>, level: Level) 
                 this.plow = ItemStack.EMPTY
                 return InteractionResult.sidedSuccess(player.level().isClientSide)
             }
+            // 骑乘
+            isTame && !player.isCrouching && !this.isVehicle -> {
+                if (!level().isClientSide) {
+                    player.startRiding(this)
+                }
+                return InteractionResult.sidedSuccess(level().isClientSide)
+            }
         }
 
         return super.mobInteract(player, hand)
     }
 
-    override fun tick() {
-        super.tick()
-        if (level().isClientSide) return
-        variant = if (herdRole is HerdRole.Leader) WaterBuffaloVariant.BROWN else WaterBuffaloVariant.BLUE
+    override fun getControllingPassenger(): LivingEntity? {
+        // 确保第一个乘客是生物（比如玩家）才能控制
+        return firstPassenger as? LivingEntity
+    }
+
+    override fun canRiderInteract(): Boolean {
+        return true
+    }
+
+    override fun skipAttackInteraction(attacker: Entity): Boolean {
+        // 如果攻击者是当前正骑在水牛身上的乘客，直接跳过/无视这次攻击
+        if (this.hasPassenger(attacker)) {
+            return true
+        }
+        return super.skipAttackInteraction(attacker)
+    }
+
+    override fun tickRidden(player: Player, travelVector: Vec3) {
+        super.tickRidden(player, travelVector)
+
+        val turnSpeed = -player.xxa.sign * 4f
+        val isMoving = player.zza != 0f
+
+        if (turnSpeed != 0f) {
+            yRot += turnSpeed
+            yHeadRot = yRot + turnSpeed * 1.5f
+            yBodyRot = Mth.rotLerp(0.2f, yBodyRot, yHeadRot)
+        } else if (isMoving) {
+            yRot = Mth.rotLerp(0.1f, yBodyRot, player.yRot)
+            yBodyRot = yRot
+            yHeadRot = Mth.rotLerp(0.125f, yBodyRot, player.yRot)
+        }
+    }
+
+    override fun getRiddenInput(player: Player, travelVector: Vec3): Vec3 {
+        // 只获取前后移动 (W/S 键)
+        var zza = player.zza
+
+        if (zza <= 0.0f) {
+            zza *= 0.25f
+        }
+
+        return Vec3(0.0, 0.0, zza.toDouble())
+    }
+
+    override fun getRiddenSpeed(player: Player): Float {
+        return (0.25f) * this.getAttributeValue(Attributes.MOVEMENT_SPEED).toFloat()
     }
 
     override fun aiStep() {
